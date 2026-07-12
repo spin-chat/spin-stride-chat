@@ -63,7 +63,12 @@ io.on('connection', (socket) => {
         });
     });
 });
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+});
 
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Chat server is running on port ${PORT}...`);
