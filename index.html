@@ -5,96 +5,277 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spin & Stride - Fitness Community Chat</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f7f6; margin: 0; padding: 0; }
-        .app-container { display: flex; height: 100vh; max-width: 1200px; margin: 0 auto; background: white; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+        /* Modern Design & Color System */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f0f2f5; 
+            margin: 0; 
+            padding: 0; 
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Header Navigation Dashboard */
+        .top-navbar {
+            background: #1e272e;
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-badge {
+            font-size: 14px;
+            font-weight: 600;
+            background: #343a40;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid #495057;
+        }
+
+        .chat-title {
+            margin: 0;
+            font-size: 18px;
+            color: #00d2d3;
+        }
+
+        /* Horizontal Menu Tabs on Top */
+        .menu-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        /* Hide scrollbar for tabs */
+        .menu-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            flex: 1;
+            white-space: nowrap;
+            padding: 10px 14px;
+            text-align: center;
+            background: #2f3542;
+            border: none;
+            color: #ced4da;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover, .tab-btn.active {
+            background: #007bff;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0,123,255,0.4);
+        }
+
+        .badge {
+            background: #ff5252;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 10px;
+            display: none;
+        }
+
+        /* Core Workspace Area */
+        .main-chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #e5ddd5; /* Classic chat warm background background */
+            position: relative;
+            overflow: hidden;
+        }
         
-        /* Navigation Sidebar */
-        .sidebar { width: 280px; background: #2c3e50; color: white; display: flex; flex-direction: column; border-right: 1px solid #34495e; }
-        .user-profile { padding: 20px; background: #1a252f; font-weight: bold; font-size: 16px; border-bottom: 1px solid #34495e; }
-        .menu-tabs { flex: 1; padding: 15px 0; }
-        .tab-btn { width: 100%; padding: 12px 20px; text-align: left; background: none; border: none; color: #bdc3c7; font-size: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
-        .tab-btn:hover, .tab-btn.active { background: #34495e; color: white; font-weight: bold; }
-        .badge { background: #e74c3c; color: white; border-radius: 10px; padding: 2px 8px; font-size: 11px; display: none; }
+        .messages-box { 
+            flex: 1; 
+            padding: 15px; 
+            overflow-y: auto; 
+        }
         
-        /* Chat Dashboard */
-        .main-chat-area { flex: 1; display: flex; flex-direction: column; background: #fafafa; }
-        .chat-header { padding: 15px 20px; background: white; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .chat-header h3 { margin: 0; color: #333; }
+        /* Smooth Rounded Message Bubbles */
+        .msg { 
+            margin-bottom: 12px; 
+            padding: 8px 14px; 
+            border-radius: 0px 16px 16px 16px; 
+            background: #ffffff; 
+            width: fit-content; 
+            max-width: 80%; 
+            line-height: 1.4; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1); 
+            font-size: 15px;
+            color: #2f3542;
+        }
         
-        .messages-box { flex: 1; padding: 20px; overflow-y: auto; background: #f9f9f9; }
-        .msg { margin-bottom: 15px; padding: 10px 14px; border-radius: 8px; background: #e9ecef; width: fit-content; max-width: 70%; line-height: 1.4; }
-        .msg.me { background: #d4edda; margin-left: auto; }
-        .msg-meta { font-size: 11px; color: #666; margin-bottom: 4px; font-weight: bold; }
+        .msg.me { 
+            background: #d9fdd3; /* Soft Elegant Premium Green */
+            margin-left: auto; 
+            border-radius: 16px 0px 16px 16px; 
+        }
         
-        /* Footer Input Area */
-        .chat-footer { padding: 15px; background: white; border-top: 1px solid #eee; }
-        .chat-input-group { display: flex; gap: 10px; align-items: center; }
-        .chat-input-group input[type="text"] { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
-        .chat-input-group button { padding: 12px 20px; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; border: none; }
-        .btn-send { background: #007bff; color: white; }
-        .btn-send:hover { background: #0056b3; }
-        .btn-attach { background: #28a745; color: white; padding: 12px 15px !important; }
+        .msg-meta { 
+            font-size: 11px; 
+            color: #747d8c; 
+            margin-bottom: 4px; 
+            font-weight: bold; 
+            text-transform: uppercase;
+        }
         
-        .file-preview img { max-width: 120px; border-radius: 6px; margin-top: 8px; border: 1px solid #ddd; }
+        /* Selection View Area */
+        .selection-list { 
+            padding: 15px; 
+            overflow-y: auto;
+            background: #f1f2f6;
+            flex: 1;
+        }
         
-        /* Selection List Styles */
-        .selection-list { padding: 10px 20px; }
-        .list-item { padding: 10px; background: #f1f3f5; margin-bottom: 8px; border-radius: 6px; cursor: pointer; transition: 0.2s; border: 1px solid #e2e8f0; }
-        .list-item:hover { background: #e2e8f0; }
+        .list-item { 
+            padding: 14px; 
+            background: white; 
+            margin-bottom: 10px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            transition: transform 0.2s, box-shadow 0.2s; 
+            border: 1px solid #e4e7eb;
+            font-weight: 600;
+            color: #2f3542;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        
+        .list-item:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            border-color: #007bff;
+        }
+        
+        /* Mobile Input Control Footer */
+        .chat-footer { 
+            padding: 10px 12px; 
+            background: #f0f2f5; 
+            border-top: 1px solid #e4e7eb;
+        }
+        
+        .chat-input-group { 
+            display: flex; 
+            gap: 8px; 
+            align-items: center; 
+        }
+        
+        .chat-input-group input[type="text"] { 
+            flex: 1; 
+            padding: 12px; 
+            border: 1px solid #ccced1; 
+            border-radius: 24px; 
+            font-size: 15px; 
+            outline: none;
+            background: white;
+        }
+        
+        .chat-input-group button { 
+            border-radius: 50%; 
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer; 
+            border: none; 
+            font-size: 16px;
+        }
+        
+        .btn-send { 
+            background: #007bff; 
+            color: white; 
+            border-radius: 24px !important;
+            width: auto !important;
+            padding: 0 20px;
+            font-weight: bold;
+        }
+        
+        .btn-attach { 
+            background: #2ed573; 
+            color: white; 
+        }
+        
+        .file-preview img { 
+            max-width: 100px; 
+            border-radius: 8px; 
+            margin-top: 6px; 
+            border: 1px solid #ddd; 
+        }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <!-- Sidebar Navigation -->
-        <div class="sidebar">
-            <div class="user-profile" id="userDisplay">👤 Loading User...</div>
-            <div class="menu-tabs">
-                <button class="tab-btn active" onclick="switchSection('community')">
-                    <span>🌐 Community Chat</span>
-                </button>
-                <button class="tab-btn" onclick="switchSection('events')">
-                    <span>🏆 My Events</span>
-                    <span class="badge" id="eventBadge">🔔</span>
-                </button>
-                <button class="tab-btn" onclick="switchSection('individual')">
-                    <span>💬 Direct Messages</span>
-                </button>
-            </div>
+    <!-- Top Integrated Control Bar -->
+    <div class="top-navbar">
+        <div class="header-meta">
+            <h3 class="chat-title" id="currentChatTitle">🌐 Community Pool</h3>
+            <div class="user-badge" id="userDisplay">👤 Loading...</div>
         </div>
-
-        <!-- Main Workspace -->
-        <div class="main-chat-area">
-            <div class="chat-header">
-                <h3 id="currentChatTitle">🌐 Community Pool</h3>
-                <span id="notificationBell" style="font-size: 18px; cursor: pointer;">🔔</span>
-            </div>
-            
-            <!-- Dynamic Active Views -->
-            <div id="selectionArea" class="selection-list" style="display: none;"></div>
-            <div id="messages" class="messages-box"></div>
-            
-            <!-- Message Inputs -->
-            <div class="chat-footer" id="chatFooter">
-                <div class="chat-input-group">
-                    <input type="text" id="messageInput" placeholder="Type your fitness update...">
-                    <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleImageUpload()">
-                    <button type="button" class="btn-attach" onclick="document.getElementById('fileInput').click()">📷</button>
-                    <button class="btn-send" onclick="sendMessage()">Send</button>
-                </div>
-                <div id="filePreview" class="file-preview"></div>
-            </div>
+        
+        <!-- Tab Options shifted to Top Header Area -->
+        <div class="menu-tabs">
+            <button class="tab-btn active" onclick="switchSection('community', event)">
+                <span>🌐 Community Chat</span>
+            </button>
+            <button class="tab-btn" onclick="switchSection('events', event)">
+                <span>🏆 My Events</span>
+                <span class="badge" id="eventBadge">🔔</span>
+            </button>
+            <button class="tab-btn" onclick="switchSection('individual', event)">
+                <span>💬 Direct Messages</span>
+            </button>
         </div>
     </div>
 
-    <!-- Tone Alert Sound Element -->
+    <!-- Maximum Area Workspace for Mobile Screens -->
+    <div class="main-chat-area">
+        <!-- Dynamic Selection View -->
+        <div id="selectionArea" class="selection-list" style="display: none;"></div>
+        
+        <!-- Live Message Delivery Stream -->
+        <div id="messages" class="messages-box"></div>
+        
+        <!-- User Input Engine -->
+        <div class="chat-footer" id="chatFooter">
+            <div class="chat-input-group">
+                <input type="text" id="messageInput" placeholder="Type your fitness update...">
+                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleImageUpload()">
+                <button type="button" class="btn-attach" onclick="document.getElementById('fileInput').click()">📷</button>
+                <button class="btn-send" onclick="sendMessage()">Send</button>
+            </div>
+            <div id="filePreview" class="file-preview"></div>
+        </div>
+    </div>
+
     <audio id="notificationSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-84.wav" preload="auto"></audio>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
         
-        // Runtime testing authentication prompt
         let currentSender = prompt("Please enter your name for testing purposes:");
         if (!currentSender || currentSender.trim() === "") {
             currentSender = "Guest Runner";
@@ -106,13 +287,14 @@
 
         document.getElementById('userDisplay').innerText = `👤 ${currentSender}`;
 
-        // Auto-join Open General Pool
         socket.emit('join_room', { room_type: 'community', room_id: 'global_community', user: currentSender });
 
-        function switchSection(section) {
+        function switchSection(section, event) {
             activeSection = section;
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            if(event) {
+                event.currentTarget.classList.add('active');
+            }
             
             const selectionArea = document.getElementById('selectionArea');
             const messagesBox = document.getElementById('messages');
@@ -161,7 +343,6 @@
             socket.emit('join_room', { room_type: type, room_id: id, user: currentSender });
         }
 
-        // Image compression handler
         function handleImageUpload() {
             const file = document.getElementById('fileInput').files[0];
             if (!file) return;
@@ -241,10 +422,6 @@
             
             if (message.sender_name !== currentSender) {
                 document.getElementById('notificationSound').play().catch(e => console.log("Sound interaction delayed"));
-                const bell = document.getElementById('notificationBell');
-                bell.style.transform = "scale(1.3)";
-                setTimeout(() => bell.style.transform = "scale(1)", 300);
-
                 if(activeSection !== 'events') {
                     document.getElementById('eventBadge').style.display = 'inline-block';
                 }
