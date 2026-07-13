@@ -93,7 +93,13 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        let currentSender = "Nitin Kumar Goyal"; // Shared Auth/SSO से अपने आप प्राप्त होगा
+        
+        // Runtime testing authentication prompt
+        let currentSender = prompt("Please enter your name for testing purposes:");
+        if (!currentSender || currentSender.trim() === "") {
+            currentSender = "Guest Runner";
+        }
+        
         let activeSection = 'community';
         let activeRoomId = 'global_community';
         let compressedFileBase64 = '';
@@ -127,7 +133,6 @@
                 document.getElementById('currentChatTitle').innerText = "🏆 Choose Your Registered Event";
                 document.getElementById('eventBadge').style.display = 'none';
                 
-                // Mocking data that will arrive from central Shared Database
                 selectionArea.innerHTML = `
                     <div class="list-item" onclick="openSpecificRoom('event', 'green-earth-2026', 'The Green Earth Challenge')">🌿 The Green Earth Challenge 2026</div>
                     <div class="list-item" onclick="openSpecificRoom('event', 'sankalp-siddhi', 'Sankalp Se Siddhi')">🏃 Sankalp Se Siddhi 21-Day Challenge</div>
@@ -156,7 +161,7 @@
             socket.emit('join_room', { room_type: type, room_id: id, user: currentSender });
         }
 
-        // Smart Image Compressor (Checks if > 2 MB and downsizes safely)
+        // Image compression handler
         function handleImageUpload() {
             const file = document.getElementById('fileInput').files[0];
             if (!file) return;
@@ -170,10 +175,9 @@
                     let width = img.width;
                     let height = img.height;
 
-                    // If image size exceeds roughly 2 MB
                     let quality = 1.0;
                     if (file.size > 2 * 1024 * 1024) {
-                        quality = 0.6; // Compress quality to bring down around 1.5 MB
+                        quality = 0.6;
                     }
 
                     canvas.width = width;
@@ -235,7 +239,6 @@
         socket.on('receive_message', (message) => {
             renderMessage(message);
             
-            // Trigger Bell Ring & Tone if incoming message is from someone else
             if (message.sender_name !== currentSender) {
                 document.getElementById('notificationSound').play().catch(e => console.log("Sound interaction delayed"));
                 const bell = document.getElementById('notificationBell');
