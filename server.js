@@ -8,7 +8,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Database connection URL from Render[cite: 1]
+// Database connection URL from Render
 const dbLink = "postgresql://spin_chat_db_user:e5zMRAGoUJeD5wz7XrnI6eg7EII63pCf@dpg-d99sd5ks728c73dpu3v0-a.virginia-postgres.render.com/spin_chat_db"; 
 
 const pool = new Pool({
@@ -18,56 +18,57 @@ const pool = new Pool({
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Create messages table with event, team, and file upload support
+// Updated architectural table supporting generic rooms (Community, Events, Individual DMs)
 pool.query(`
     CREATE TABLE IF NOT EXISTS messages (
         id SERIAL PRIMARY KEY,
-        event_id TEXT NOT NULL,
-        team_id TEXT NOT NULL,
+        room_id TEXT NOT NULL,
         sender_name TEXT NOT NULL,
         message_text TEXT,
         file_url TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
-`).then(() => console.log("Database table initialized successfully."))
+`).then(() => console.log("Upgraded architecture table initialized successfully."))
   .catch(err => console.error("Database initialization error:", err));
 
-// Socket.io connection handler
 io.on('connection', (socket) => {
     
-    // Join specific event and team room automatically
+    // Joint gateway handler for all three modes
     socket.on('join_room', (data) => {
-        const { event_id, team_id } = data;
-        const roomName = `${event_id}_${team_id}`;
-        socket.join(roomName);
-        console.log(`User joined room: ${roomName}`);
+        const { room_id, user } = data;
+        
+        // Leave previous rooms to prevent message leaking
+        Array.from(socket.rooms).forEach(r => {
+            if(r !== socket.id) socket.leave(r);
+        });
 
-        // Load old messages and photos for this specific room
-        pool.query('SELECT * FROM messages WHERE event_id = $1 AND team_id = $2 ORDER BY created_at ASC', [event_id, team_id])
+        socket.join(room_id);
+        console.log(`${user} entered operational workspace: ${room_id}`);
+
+        // Fetch logs specific to this custom room context
+        pool.query('SELECT * FROM messages WHERE room_id = $1 ORDER BY created_at ASC', [room_id])
             .then(res => {
                 socket.emit('load_messages', res.rows);
             });
     });
 
-    // Handle incoming messages or photo uploads
+    // Unified broadcast handler
     socket.on('send_message', (data) => {
-        const { event_id, team_id, sender_name, message_text, file_url } = data;
-        const roomName = `${event_id}_${team_id}`;
+        const { room_id, sender_name, message_text, file_url } = data;
         
-        // Save message securely in PostgreSQL database[cite: 1]
-        pool.query('INSERT INTO messages (event_id, team_id, sender_name, message_text, file_url) VALUES ($1, $2, $3, $4, $5) RETURNING *', 
-        [event_id, team_id, sender_name, message_text, file_url])
+        pool.query('INSERT INTO messages (room_id, sender_name, message_text, file_url) VALUES ($1, $2, $3, $4) RETURNING *', 
+        [room_id, sender_name, message_text, file_url])
         .then((res) => {
-            // Broadcast message only to participants inside this specific room
-            io.to(roomName).emit('receive_message', res.rows[0]);
+            io.to(room_id).emit('receive_message', res.rows[0]);
         });
     });
 });
+
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Chat server is running on port ${PORT}...`);
+    console.log(`Spin & Stride multi-channel engine running on port ${PORT}...`);
 });
