@@ -18,6 +18,7 @@ const pool = new Pool({
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Re-initializing database structure safely
 pool.query(`
     DROP TABLE IF EXISTS messages;
     CREATE TABLE messages (
@@ -28,8 +29,8 @@ pool.query(`
         file_url TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
-`).then(() => console.log("डेटाबेस टेबल नए सिरे से रीसेट हो गई है।"))
-  .catch(err => console.error("डेटाबेस एरर:", err));
+`).then(() => console.log("Database schema reset and initialized successfully."))
+  .catch(err => console.error("Database initialization error:", err));
 
 io.on('connection', (socket) => {
     
