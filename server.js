@@ -18,9 +18,9 @@ const pool = new Pool({
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Updated architectural table supporting generic rooms (Community, Events, Individual DMs)
 pool.query(`
-    CREATE TABLE IF NOT EXISTS messages (
+    DROP TABLE IF EXISTS messages;
+    CREATE TABLE messages (
         id SERIAL PRIMARY KEY,
         room_id TEXT NOT NULL,
         sender_name TEXT NOT NULL,
@@ -28,8 +28,8 @@ pool.query(`
         file_url TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
-`).then(() => console.log("Upgraded architecture table initialized successfully."))
-  .catch(err => console.error("Database initialization error:", err));
+`).then(() => console.log("डेटाबेस टेबल नए सिरे से रीसेट हो गई है।"))
+  .catch(err => console.error("डेटाबेस एरर:", err));
 
 io.on('connection', (socket) => {
     
